@@ -54,7 +54,36 @@ def percentage_breeds_month(dog_breed, month, year):
     
 
 
+a = pd.DataFrame(all_data['Month'][all_data['Breed'] == user_input])
 
+print(a)
+print(a.size)
+print(a.value_counts())
+
+count_freq = dict(a['Month'].value_counts())
+print(count_freq)
+
+
+
+a['count_freq'] = a['Month']
+a['count_freq'] = a['count_freq'].map(count_freq)
+print(a['Month'][a.count_freq >= a['count_freq'].max()])
+print(a['count_freq'].max())
+b = a['Month'][a.count_freq >= a['count_freq'].max()]
+b = b.unique()
+print(b)
+
+c = all_data
+c['Month'] = c['Month'].str.upper()
+print(c)
+
+
+
+
+#df = a.groupby('Month')
+#print(df.count())
+
+'''
 
 #a = take_user_input()
 #print(a)
@@ -83,11 +112,14 @@ months = np.unique(all_data['Month'])
 print(months)
 
 
-'''
+
 for i in breeds:
     for j in months:
         if((percentage_breeds_month(i, j, 2021))):
             print(i, j, percentage_breeds_month(i, j, 2021))
+
+'''
+
 '''
 
 L = []
@@ -136,3 +168,13 @@ for i in months:
     b = np.max(data['Total'][data['Month'] == i ])
     c = data[['Breed', 'Total']][data['Total'] == b]
     print(i , b, c)
+
+'''
+
+b = all_data[(all_data['Breed'] == user_input) & (all_data['Year'] == 2022)]
+
+print(b)
+
+c = b[b['Total'] == b['Total'].max()]
+print(c)
+print(c['Year'].values, c['Month'].values)
