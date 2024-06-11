@@ -241,6 +241,8 @@ def main():
 
     # Take user input and convert all char to capital.
     # If user input is not found, ask user to try again until a valid input is detected.
+
+    print("\n 692-A4 Calgary Dogs \n")
     while (not breed_found):
         user_input = input("Please enter a breed: ")
         user_input = user_input.upper()
@@ -270,6 +272,8 @@ def main():
     most_popular_month(dog_breed, all_data)
 
     most_popular_year_month(dog_breed, year_breed_found, all_data)
+
+    print("\n Program Ends \n")
 
 
 if __name__ == '__main__':
