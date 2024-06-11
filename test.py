@@ -178,3 +178,25 @@ print(b)
 c = b[b['Total'] == b['Total'].max()]
 print(c)
 print(c['Year'].values, c['Month'].values)
+
+a = all_data.groupby('Breed')['Total'].sum()
+print(a)
+
+#all_data = pd.read_excel("WeatherData.xlsx", usecols = [2,5,6,7,8,9,10], index_col = [0,1,2,3])
+df = pd.read_excel("CalgaryDogBreeds.xlsx", usecols = [0,1,2,3], index_col=[0, 2])
+print(df)
+
+dfa = df.groupby('Breed')['Total'].sum()
+
+print(dfa)
+print(dfa.loc[user_input])
+
+a = df.loc[2021]
+b = a.groupby('Breed')['Total'].sum()
+print(b)
+print(b.loc[user_input])
+print(np.sum(b))
+
+a = df
+print(a)
+print(a.reset_index())

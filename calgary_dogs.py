@@ -50,6 +50,23 @@ def find_total_registered(dog_breed, all_data):
     print("There have been", total_registered, dog_breed, "dogs registered total.")
 
 
+def find_total_registered_mi(dog_breed, multi_index_all_data):
+    """find_total_registered: calculate and display total number of registry of the inputed dog breed across all years
+
+    Args:
+        dog_breed (str): string represents breed of the dog
+        all_data (pandas multi-index dataframe): data frame created from CalgaryDogBreeds.xlsx
+
+    Returns:
+        None
+    """
+    # Group and sum total by breed
+    df = multi_index_all_data.groupby('Breed')['Total'].sum()
+    total_registered = df.loc[dog_breed]
+    # Display total numer of registry
+    print("There have been", total_registered, dog_breed, "dogs registered total.")
+    
+
 def percentage_registered_in_year(dog_breed, year, all_data):
     """percentage_registered_in_year: for the input dog breed, calculate registry% over all breeds in a single input year
 
@@ -93,7 +110,7 @@ def percentage_top_breeds_all_year(dog_breed, years, all_data):
 
     Args:
         dog_breed (str): string represents breed of the dog
-        years (int): numpy array of years in which the dog breed is found
+        years (numpy.ndarray): numpy array of years in which the dog breed is found
         all_data (pandas dataframe): data frame created from CalgaryDogBreeds.xlsx
 
     Returns:
@@ -111,46 +128,119 @@ def percentage_top_breeds_all_year(dog_breed, years, all_data):
     # Display the result
     print("The", dog_breed, "was", f"{percentage:.6%}", " of top breeds across all years.")
 
+
+def percentage_top_breeds_all_year_mi(dog_breed, years, multi_index_all_data):
+    """percentage_top_breeds_all_year: for the input dog breed, calculate registry% over all breeds among all input years
+
+    Args:
+        dog_breed (str): string represents breed of the dog
+        years (numpy.ndarray): numpy array of years in which the dog breed is found
+        all_data (pandas dataframe): data frame created from CalgaryDogBreeds.xlsx
+
+    Returns:
+        None
+    """
+    total = 0
+    dog = 0
+    for i in years: #For all input years
+        a = multi_index_all_data.loc[i]
+        b = a.groupby('Breed')['Total'].sum()
+        # Add up number of registry for all dog over all years
+        dog += b.loc[dog_breed]
+        total += np.sum(b)
+        # Add up number of registry for the input dog breed over all years
+        #dog += np.sum(all_data['Total'][(all_data['Breed'] == dog_breed) & (all_data['Year'] == i)])
+    # Calculate input breed / all breed %
+    percentage = dog/total
+    # Display the result
+    print("The", dog_breed, "was", f"{percentage:.6%}", " of top breeds across all years.")
+
+
+
 def percentage_breeds_month(dog_breed, month, year, all_data):
+    """percentage_breeds_month: calculate and return registry% of input dog breed over all dog breed for the input month and year
+
+    Args:
+        dog_breed (str): string represents breed of the dog
+        month (int): int represents the month
+        years (numpy.ndarray): numpy array of years in which the dog breed is found
+        all_data (pandas dataframe): data frame created from CalgaryDogBreeds.xlsx
+
+    Returns:
+        percentage (float): registry% of input dog breed over all dog breed for the input month and year
+
+    """
+
     total = np.sum(all_data['Total'][(all_data['Year'] == year) & (all_data['Month'] == month)])
-    dog = np.sum(all_data['Total'][(all_data['Breed'] == dog_breed) & (all_data['Year'] == year)])
+    dog = np.sum(all_data['Total'][(all_data['Breed'] == dog_breed) & (all_data['Year'] == year) & (all_data['Month'] == month)])
     if total > 0:
         percentage = dog / total
     else: percentage = 0
     return percentage
 
+
 def most_popular_month(dog_breed, all_data):
+    """most_popular_month: find and display the month appears most for the registry of a dog breed
+
+    Args:
+        dog_breed (str): string represents breed of the dog
+        all_data (pandas dataframe): data frame created from CalgaryDogBreeds.xlsx
+
+    Returns:
+        None
+    """
+
+    # Filter 'Month Value' by dog breed
     a = pd.DataFrame(all_data['Month'][all_data['Breed'] == dog_breed])
+    # Count frequency of each month
     count_freq = dict(a['Month'].value_counts())
     a['count_freq'] = a['Month']
     a['count_freq'] = a['count_freq'].map(count_freq)
+    # Filter out month with highest frequency
     b = a['Month'][a.count_freq >= a['count_freq'].max()]
+    # Reduce to unique month value
     b = b.unique()
+    # Print result
     print("Most popular month(s) for ", dog_breed, ": ", " ".join(str(x) for x in b), sep="")
 
+
 def most_popular_year_month(dog_breed, years, all_data):
-    for i in years:
+    """most_popular_year_month: find the month that has highest number of registry of the dog breed in all input years
+
+    Args:
+        dog_breed (str): string represents breed of the dog
+        years (numpy.ndarray): numpy array of years in which the dog breed is found
+        all_data (pandas dataframe): data frame created from CalgaryDogBreeds.xlsx
+
+    Returns:
+        None
+    """
+
+    for i in years: # do calculation for all years
+        # Filter 'Total' by finding the max value
         df = all_data[(all_data['Breed'] == dog_breed) & (all_data['Year'] == i)]
         df_2 = df[df['Total'] == df['Total'].max()]
+        # Print 'Month' values where total is the max over the year.
         print("Most popular month(s) for ", dog_breed, " in ", i, " : ", " ".join(str(x) for x in df_2['Month']), sep="")
-    pass
 
 # Main loop
 
 def main():
 
     # Import data here
-    all_data = pd.read_excel("CalgaryDogBreeds.xlsx")
+    #all_data = pd.read_excel("CalgaryDogBreeds.xlsx")
+    multi_index_all_data = pd.read_excel("CalgaryDogBreeds.xlsx", usecols = [0,1,2,3], index_col=[0, 2])
+    #some operation is easier after reset index
+    all_data = multi_index_all_data.reset_index()
 
     breed_found = False
 
     # User input stage 
 
-    #'LABRADOR RETR'
+    # Sample input: 'LABRADOR RETR'
 
     # Take user input and convert all char to capital.
     # If user input is not found, ask user to try again until a valid input is detected.
-
     while (not breed_found):
         user_input = input("Please enter a breed: ")
         user_input = user_input.upper()
@@ -164,14 +254,18 @@ def main():
    
     print("You have entered", dog_breed)
 
+    # Analysis stage
     year_breed_found = find_breed_in_years(dog_breed, all_data)
-    print(type(year_breed_found))
 
-    find_total_registered(dog_breed, all_data)
+    # find_total_registered(dog_breed, all_data)
+    # Version using multi-index
+    find_total_registered_mi(dog_breed, multi_index_all_data)
 
     percentage_top_breeds_over_year(dog_breed, year_breed_found, all_data)
 
-    percentage_top_breeds_all_year(dog_breed, year_breed_found, all_data)
+    # percentage_top_breeds_all_year(dog_breed, year_breed_found, all_data)
+    # Version using multi-index
+    percentage_top_breeds_all_year_mi(dog_breed, year_breed_found, multi_index_all_data)
         
     most_popular_month(dog_breed, all_data)
 
